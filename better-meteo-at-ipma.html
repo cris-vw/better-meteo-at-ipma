@@ -1,0 +1,44 @@
+<table>
+    <tr id="hour-row">
+        <th>hour</th>
+    </tr>
+    <tr id="rain-row">
+        <th>chance of rain</th>
+    </tr>
+</table>
+
+<script>
+    (async () => {
+        const forecasts = await (await fetch('https://api.ipma.pt/public-data/forecast/aggregate/1110600.json')).json();
+
+        forecasts.forEach(forecast => {
+            const date = new Date(forecast.dataPrev);
+            const rain = parseFloat(forecast.probabilidadePrecipita)
+
+            if (isToday(date) && rain >= 0) {
+                const hourCell = document.createElement('td');
+                hourCell.textContent = toHoursAndMinutes(date);
+                const hourRow = document.getElementById('hour-row');
+                hourRow.appendChild(hourCell);
+
+                const rainCell = document.createElement('td');
+                rainCell.textContent = `${rain}%`;
+                const rainRow = document.getElementById('rain-row');
+                rainRow.appendChild(rainCell);
+            }
+        });
+    })();
+
+    const isToday = (date) => {
+        const today = new Date();
+        return date.getFullYear() === today.getFullYear() &&
+            date.getMonth() === today.getMonth() &&
+            date.getDate() === today.getDate();
+    }
+
+    const toHoursAndMinutes = (date) => {
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+</script>
